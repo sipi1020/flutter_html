@@ -1,19 +1,17 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:chewie_audio/chewie_audio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter_html/src/utils.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:video_player/video_player.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_html/html_parser.dart';
 import 'package:flutter_html/src/html_elements.dart';
+import 'package:flutter_html/src/utils.dart';
 import 'package:flutter_html/style.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:html/dom.dart' as dom;
+import 'package:webview_flutter/webview_flutter.dart';
 
 /// A [ReplacedElement] is a type of [StyledElement] that does not require its [children] to be rendered.
 ///
@@ -183,45 +181,6 @@ class IframeContentElement extends ReplacedElement {
   }
 }
 
-/// [AudioContentElement] is a [ContentElement] with an audio file as its content.
-class AudioContentElement extends ReplacedElement {
-  final List<String> src;
-  final bool showControls;
-  final bool autoplay;
-  final bool loop;
-  final bool muted;
-
-  AudioContentElement({
-    String name,
-    Style style,
-    this.src,
-    this.showControls,
-    this.autoplay,
-    this.loop,
-    this.muted,
-    dom.Element node,
-  }) : super(name: name, style: style, node: node);
-
-  @override
-  Widget toWidget(RenderContext context) {
-    return Container(
-      width: context.style.width ?? 300,
-      child: ChewieAudio(
-        controller: ChewieAudioController(
-          videoPlayerController: VideoPlayerController.network(
-            src.first ?? "",
-          ),
-          autoPlay: autoplay,
-          looping: loop,
-          showControls: showControls,
-          autoInitialize: true,
-        ),
-      ),
-    );
-  }
-}
-
-
 /// [SvgContentElement] is a [ReplacedElement] with an SVG as its contents.
 class SvgContentElement extends ReplacedElement {
   final String data;
@@ -303,20 +262,6 @@ class RubyElement extends ReplacedElement {
 
 ReplacedElement parseReplacedElement(dom.Element element) {
   switch (element.localName) {
-    case "audio":
-      final sources = <String>[
-        if (element.attributes['src'] != null) element.attributes['src'],
-        ...ReplacedElement.parseMediaSources(element.children),
-      ];
-      return AudioContentElement(
-        name: "audio",
-        src: sources,
-        showControls: element.attributes['controls'] != null,
-        loop: element.attributes['loop'] != null,
-        autoplay: element.attributes['autoplay'] != null,
-        muted: element.attributes['muted'] != null,
-        node: element,
-      );
     case "br":
       return TextContentElement(
         text: "\n",
